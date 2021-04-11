@@ -1,8 +1,8 @@
 # Kromette
 
 ## ProcessingJS App
-Online editor: https://editor.p5js.org/Mizux/sketches/HVEjGF_5o
-You can also find source code in [docs](docs)<br>
+Online editor: https://editor.p5js.org/Mizux/sketches/HVEjGF_5o<br>
+You can also find the source code in [docs](docs)<br>
 note: Source of Truth (i.e. last version) is currently on p5js.org
 
 Deployed on GitHub page: https://mizux.github.io/kromette/
