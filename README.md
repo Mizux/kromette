@@ -1,14 +1,24 @@
-# kromette
-Asset for Kromette
+# Kromette
 
-and processing Test: https://mizux.github.io/kromette/
+## ProcessingJS App
+Online editor: https://editor.p5js.org/Mizux/sketches/HVEjGF_5o
+You can also find source code in [docs](docs)<br>
+note: Source of Truth (i.e. last version) is currently on p5js.org
 
-edit en ligne: https://editor.p5js.org/Mizux/sketches/HVEjGF_5o
+Deployed on GitHub page: https://mizux.github.io/kromette/
+
+To run localy
+```sh
+npm install -g http-server
+cd docs
+http-server
+```
+Then should be available on http://127.0.0.1:8080
+
+## Assets
+Some Vectorial Assets for Kromette:
 
 ![chat](chat.png)
-
 ![chat_noire](chat_noire.png)
-
 ![chat_meau](chameau.png)
-
 ![chat_vesouris](chat_vesouris.png)
