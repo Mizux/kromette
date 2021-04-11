@@ -16,7 +16,8 @@ http-server
 Then should be available on http://127.0.0.1:8080
 
 ## Assets
-Some Vectorial Assets for Kromette:
+Some Vectorial Assets for Kromette community...<br>
+note: All assets are original and under [CC0](https://creativecommons.org/publicdomain/zero/1.0/) !
 
 ![chat](chat.png)
 ![chat_noire](chat_noire.png)
