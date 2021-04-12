@@ -1,10 +1,15 @@
-let debug = false;
-let screen = [640, 480]; // size of the scene [width,height]
-let cell_columns = 8;
-let cell_rows = 16;
-let krokette_ratio = 0.2; // 20% of all cells
+// Simple minesweeper
+// todo(mizux): use fast inverse squared root when computing cell color ?
+// ref: https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-let cat_number = 12;
+// todo(mizux) Use vector normalization for cat speed
+// todo(mizux) Use poisson disc distribution for cat initial positions ?
+
+let debug = false;
+let screen = [800, 600]; // size of the scene [width,height]
+let cell_columns = 16;
+let cell_rows = 25;
+let krokette_ratio = 0.1; // 10% of all cells
 
 function setup() {
   createCanvas(screen[0], screen[1]);
@@ -42,33 +47,45 @@ function setup() {
 
   // Init Cats
   {
-    cat_img = loadImage('assets/cat.png');
+    cat_snd = [];
+    // Cat, Screaming, A.wav" by InspectorJ (www.jshaw.co.uk) of Freesound.org
+    cat_snd.push(loadSound('assets/cat_0.wav'));
+    cat_snd.push(loadSound('assets/cat_1.wav'));
+    cat_snd.push(loadSound('assets/cat_2.wav'));
+
+    cat_img = [];
+    cat_img.push(loadImage('assets/cat_0.png'));
+    cat_img.push(loadImage('assets/cat_1.png'));
     cat_factor = 0.075;
     cat_pos = []; // Cats position
     cat_speed = []; // Cats speed
-    for (i = 0; i < cat_number; ++i) {
-      cat_pos.push([
-        random() * screen[0] / 2 + screen[0] / 4, // x
-        random() * screen[1] / 2 + screen[1] / 4 // y
-      ]);
-      cat_speed.push([
-        random() * 2 - 1,
-        random() * 2 - 1
-      ]);
-    }
   }
 
   // mouse
   mouse = [screen[0] / 2, screen[1] / 2];
 }
 
+function add_cat(x, y) {
+  cat_pos.push([
+    x * cell_width, // x
+    y * cell_height // y
+  ]);
+
+  cat_speed.push([
+    random() * 2 - 1,
+    random() * 2 - 1
+  ]);
+}
+
+
 function hide_krokettes() {
+  krokette_found = 0;
   for (i = 0; i < krokette_number; ++i) {
     cell_values[i] = "krokette";
   }
   // shuffle krokettes
   for (i = 0; i < krokette_number; ++i) {
-    let new_pos = int(random() * cell_number + 0.5);
+    let new_pos = floor(random() * (cell_number + 1));
     let tmp = cell_values[new_pos];
     cell_values[new_pos] = cell_values[i];
     cell_values[i] = tmp;
@@ -77,7 +94,7 @@ function hide_krokettes() {
   for (x = 0; x < cell_columns; ++x) {
     for (y = 0; y < cell_rows; ++y) {
       if (cell_values[index(x, y)] !== "krokette") {
-        cell_values[index(x, y)] = get_krokettes(x, y);
+        cell_values[index(x, y)] = get_neighbhors_krokettes(x, y);
       }
     }
   }
@@ -89,20 +106,11 @@ function reset() {
     cell_discover[i] = false;
     cell_values[i] = 0;
   }
-
   hide_krokettes();
 
   // Reset cats pos and speed
-  for (i = 0; i < cat_number; ++i) {
-    cat_pos[i] = [
-      random() * screen[0] / 2 + screen[0] / 4, // x
-      random() * screen[1] / 2 + screen[1] / 4 // y
-    ];
-    cat_speed[i] = [
-      random() * 2 - 1,
-      random() * 2 - 1
-    ];
-  }
+  cat_pos.length = 0;
+  cat_speed.length = 0;
 }
 
 function index(x, y) {
@@ -116,7 +124,7 @@ function is_valid(x, y) {
   return true;
 }
 
-function get_krokettes(x, y) {
+function get_neighbhors_krokettes(x, y) {
   let krokettes = 0;
   // row above
   krokettes += is_krokettes(x - 1, y - 1) ? 1 : 0;
@@ -143,28 +151,29 @@ function is_krokettes(x, y) {
 
 function draw_cats() {
   let move_factor = 3;
-  for (i = 0; i < cat_number; ++i) {
+  for (i = 0; i < cat_pos.length; ++i) {
     let new_pos = [
       cat_pos[i][0] + move_factor * cat_speed[i][0],
       cat_pos[i][1] + move_factor * cat_speed[i][1]
     ];
 
     // inverse speed if reaching border
-    if ((new_pos[0] > screen[0] - cat_img.width * cat_factor) || (new_pos[0] < 0)) {
+    let index = i % cat_img.length
+    if ((new_pos[0] > screen[0] - cat_img[index].width * cat_factor) || (new_pos[0] < 0)) {
       cat_speed[i][0] = -cat_speed[i][0];
     }
-    if ((new_pos[1] > screen[1] - cat_img.height * cat_factor) || (new_pos[1] < 0)) {
+    if ((new_pos[1] > screen[1] - cat_img[index].height * cat_factor) || (new_pos[1] < 0)) {
       cat_speed[i][1] = -cat_speed[i][1];
     }
 
-    cat_pos[i][0] = constrain(new_pos[0], 0, screen[0] - cat_img.width * cat_factor);
-    cat_pos[i][1] = constrain(new_pos[1], 0, screen[1] - cat_img.height * cat_factor);
+    cat_pos[i][0] = constrain(new_pos[0], 0, screen[0] - cat_img[index].width * cat_factor);
+    cat_pos[i][1] = constrain(new_pos[1], 0, screen[1] - cat_img[index].height * cat_factor);
 
-    image(cat_img,
+    image(cat_img[index],
       cat_pos[i][0],
       cat_pos[i][1],
-      cat_img.width * cat_factor,
-      cat_img.height * cat_factor);
+      cat_img[index].width * cat_factor,
+      cat_img[index].height * cat_factor);
   }
 }
 
@@ -293,8 +302,14 @@ function play(x, y) {
   // Just clicked on a krokette !
   if (cell_values[index(x, y)] === "krokette") {
     cell_discover[index(x, y)] = true;
-    console.log("Game Over !");
-    reset();
+    cat_snd[cat_pos.length % cat_snd.length].play();
+    add_cat(x, y);
+    krokette_found++;
+
+    if (krokette_found == krokette_number) {
+      console.log("Game Over !");
+      reset();
+    }
     return true;
   }
 
