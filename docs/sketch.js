@@ -170,6 +170,11 @@ function draw_cats() {
 
 function draw_grid() {
   let move_factor = 0.05;
+  textAlign(CENTER, CENTER);
+  // use to center krokette img
+  let delta_x = (cell_width - (krokette_img.width * krokette_factor)) / 2;
+  let delta_y = (cell_height - (krokette_img.height * krokette_factor)) / 2;
+
   for (y = 0; y < cell_rows; ++y) {
     for (x = 0; x < cell_columns; ++x) {
       let a = pow((x - cell_columns / 2), 2) + pow((y - cell_rows / 2), 2);
@@ -187,29 +192,10 @@ function draw_grid() {
         cell_height, // height
         min(cell_width, cell_height) / 3 // radius corner
       );
-    }
-  }
-}
 
-function draw_cells() {
-  let move_factor = 0.05;
-  textAlign(CENTER, CENTER);
-  // use to center krokette img
-  let delta_x = (cell_width - (krokette_img.width * krokette_factor)) / 2;
-  let delta_y = (cell_height - (krokette_img.height * krokette_factor)) / 2;
-
-  for (y = 0; y < cell_rows; ++y) {
-    for (x = 0; x < cell_columns; ++x) {
+      // Draw cells
       if (cell_discover[index(x, y)]) {
         if (cell_values[index(x, y)] === "krokette") {
-          let a = pow((x - cell_columns / 2), 2) + pow((y - cell_rows / 2), 2);
-          let b = sqrt(a);
-          let c = color(
-            255 * 1.1,
-            255 * (cos(b - t * move_factor) / 3 + 0.5),
-            255 * (cos(b - t * move_factor) / 4 + 0.5)
-          );
-          fill(c);
           image(krokette_img,
             x * cell_width + delta_x,
             y * cell_height + delta_y,
@@ -274,7 +260,6 @@ function draw() {
   t++; // tick
 
   draw_grid();
-  draw_cells();
 
   draw_cats();
 
